@@ -1,13 +1,9 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Dosis } from "next/font/google";
 import "./globals.css";
+import { ScoreProvider } from "@/context/ScoreContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dosis = Dosis({
+  variable: "--font-dosis-sans",
   subsets: ["latin"],
 });
 
@@ -20,9 +16,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${dosis.variable} antialiased`}
       >
-        {children}
+        <ScoreProvider>{children}</ScoreProvider>
       </body>
     </html>
   );
