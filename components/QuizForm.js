@@ -7,10 +7,12 @@ import { useScore } from "@/context/ScoreContext";
 export default function QuizForm() {
     const [quizData, setQuizData] = useState(null)
     const [selectedOption, setSelectedOption] = useState('')
+    const [question, setQuestion] = useState('')
+    const [options, setOptions] = useState([])
     const [feedback, setFeedback] = useState('')
     const [loading, setLoading] = useState(true)
     const [index, setIndex] = useState(1)
-    const { score, incrementScore } = useScore()
+    const { score, setScore } = useScore(0)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,21 +21,32 @@ export default function QuizForm() {
                 .select('*')
                 .eq('id', index)
                 .single()
-            
-            if (error) {
-                console.error('Error fetching data:', error)
-                setQuizData(null)
-            } else {
-                setQuizData(data)
-            }
 
+            if (error) {
+                console.log('Error fetching data:', error)
+                setQuizData(null)
+                setTimeout(() => {
+                    setLoading(false)
+                }, 1500);
+            } else {
+                setLoading(false)
+                setQuizData(data)
+                setQuestion(data.question)
+                setOptions(data.options)
+            }
             setSelectedOption('')
             setFeedback('')
-            setLoading(false)
         }
-
         fetchData()
-    }, [index])
+    }, [index]);
+
+    const handleNext = () => {
+        if (index > data.length + 1) {
+            <p>Quiz complete!</p>
+        }
+    }
+
+    if (loading) return <p>Loading quiz...</p>;
 
     const handleChange = (e) => {
         setSelectedOption(e.target.value)
@@ -42,30 +55,24 @@ export default function QuizForm() {
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        if (!selectedOption) return
-
         const isCorrect = selectedOption === quizData.answer
 
         if (isCorrect) {
             setFeedback('Correct!')
-            incrementScore()
+            setScore(prev => prev +1)
+            setIndex(prev => prev + 1);
         } else {
             setFeedback('Incorrect.')
-            score()
+            score();
         }
-
-        setTimeout(() => {
-            setIndex(prev => prev + 1)
-        }, 1000)
     }
 
     if (loading) return <p>Loading...</p>
-    if (!quizData) return <p>No quiz data found.</p>
-
-    const { question, options } = quizData
+    if (!quizData) {
+        <p>No quiz data found.</p>
+    }
 
     return (
-        <>
             <form onSubmit={handleSubmit} className="m-6 p-4 border-solid border-2 border-gray-600 rounded-md">
                 <h2 className="mb-4 font-bold">{question}</h2>
                 {options.map((opt, index) => (
@@ -82,12 +89,11 @@ export default function QuizForm() {
                     </label>
                 ))}
 
-                <button type="submit" className="flex flex-row mt-4 border-solid border-1 border-gray-600 p-2 rounded-md" disabled={!selectedOption}>
+                <button type="submit" onClick={handleNext} className="flex flex-row mt-4 border-solid border-1 border-gray-600 p-2 rounded-md" disabled={!selectedOption}>
                     Submit
                 </button>
 
                 {feedback && <p>{feedback}</p>}
             </form>
-        </>
-    )
-} 
+    );
+}

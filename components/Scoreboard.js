@@ -1,6 +1,6 @@
 'use client'
 
-import { useScore } from "@/context/ScoreContext"
+import { useScore } from "@/context/ScoreContext";
 
 export default function Scoreboard() {
     const { score } = useScore();

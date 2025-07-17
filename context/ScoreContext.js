@@ -1,22 +1,18 @@
 'use client'
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
 
 const ScoreContext = createContext();
 
-export function ScoreProvider({ children }) {
+export const ScoreProvider = ({ children }) => {
     const [score, setScore] = useState(0);
 
-    const incrementScore = () => setScore((prev) => prev + 1);
-    const sameScore = () => setScore((prev) => prev + 0);
-
     return (
-        <ScoreContext.Provider value={{ score, incrementScore, sameScore }}>
+        <ScoreContext.Provider value={{ score, setScore }}>
             {children}
         </ScoreContext.Provider>
     );
-}
+};
 
-export function useScore() {
-    return useContext(ScoreContext);
-}
+export const useScore = () => useContext(ScoreContext);
