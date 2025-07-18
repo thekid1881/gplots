@@ -1,99 +1,94 @@
 'use client'
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useScore } from "@/context/ScoreContext";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabaseClient"
+import { useScore } from "@/context/ScoreContext"
 
 export default function QuizForm() {
-    const [quizData, setQuizData] = useState(null);
-    const [selectedOption, setSelectedOption] = useState('');
-    const [question, setQuestion] = useState('');
-    const [options, setOptions] = useState([]);
-    const [feedback, setFeedback] = useState('');
-    const router = useRouter();
-    const [loading, setLoading] = useState(true);
-    const [index, setIndex] = useState(1);
-    const { score, setScore } = useScore(0);
-    
+    const [questions, setQuestions] = useState([])
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [selectedOption, setSelectedOption] = useState('')
+    const [result, setResult] = useState(null)
+    const [quizFinished, setQuizFinished] = useState(false)
+    const { score, setScore } = useScore(0)
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchQuestions = async () => {
             const { data, error } = await supabase
                 .from('quizdata')
                 .select('*')
-                .eq('id', index)
-                .single()
-
-// just needd to figure out how to flexibly determine if
-// new index is greater than number of rows in table
-
-            if (index > 2) {
-                router.push('/done')
+                .order('id', { ascending: true })
+            
+            if (error) {
+                console.error('Error fetching questions:', error)
             } else {
-                if (error) {
-                    console.error('Error fetching data:', error)
-                    setQuizData(null)
-                } else {
-                    setQuizData(data)
-                    setQuestion(data.question)
-                    setOptions(data.options)
-                    setLoading(false)
-                }
+                setQuestions(data)
             }
-            setSelectedOption('')
-            setFeedback('')
-        };
-        fetchData();
-    }, [index]);
+        }
 
-    if (loading) return <p>Loading quiz...</p>;
-
-    const handleChange = (e) => {
-        setSelectedOption(e.target.value)
-    }
+        fetchQuestions()
+    }, [])
 
     const handleSubmit = (e) => {
         e.preventDefault()
-
-        const isCorrect = selectedOption === quizData.answer
+        if(!selectedOption) return
+        
+        const currentQuestion = questions[currentIndex]
+        const isCorrect = selectedOption === currentQuestion.answer
 
         if (isCorrect) {
-            setFeedback('Correct!')
-            setScore(prev => prev +1);
+            setResult('Correct!')
+            setScore(prev => prev + 1)
         } else {
-            setFeedback('Incorrect.')
-            setScore(prev => prev * 1);
+            setResult('Incorrect.')
+            setScore(prev => prev * 1)
         }
-        setIndex(prev => prev + 1)
+        
+        setTimeout(() => {
+            setSelectedOption('')
+            setResult(null)
+
+            if (currentIndex + 1 < questions.length) {
+                setCurrentIndex(currentIndex + 1)
+            } else {
+                setQuizFinished(true)
+            }
+        }, 1000)
     }
 
-    if (loading) return <p>Loading...</p>
-    if (!quizData) {
-        <p>No quiz data found.</p>
-    }
+    if (questions.length === 0) return <div>Loading...</div>
+    if (quizFinished) return <div>Quiz Complete</div>
+
+    const currentQuestion = questions[currentIndex]
 
     return (
-        <form onSubmit={handleSubmit} className="m-6 p-4 border-solid border-2 border-gray-600 rounded-md">
-            <h2 className="mb-4 font-bold">{question}</h2>
-            {options.map((opt, index) => (
-                <label key={index}>
-                    <input
-                        className="flex grid-cols-3 gap-4"
-                        type="radio"
-                        name="answer"
-                        value={opt}
-                        checked={selectedOption === opt}
-                        onChange={handleChange}
-                    />
-                    {opt}
-                </label>
-            ))}
+        <div>
+            <h1>Quiz</h1>
+            <form onSubmit={handleSubmit}>
+                <p>{currentQuestion.question}</p>
+                {currentQuestion.options.map((opt, idx) => (
+                    <label key={idx} className="border-solid border-2 border-gray-600 p-4">
+                        <input
+                            type="radio"
+                            name="option"
+                            value={opt}
+                            checked={selectedOption === opt}
+                            onChange={(e) => setSelectedOption(e.target.value)}
+                        />
+                        {opt}
+                    </label>
+                ))}
 
-            <button type="submit" onClick={handleSubmit} className="flex flex-row mt-4 border-solid border-1 border-gray-600 p-2 rounded-md" disabled={!selectedOption}>
-                Submit
-            </button>
+                <button type="submit" className="text-centered p-4 rounded-md">
+                    Submit
+                </button>
+            </form>
 
-            {feedback && <p>{feedback}</p>}
-        </form>
-    );
+            {result && (
+                <div className="m-4 p-4 font-bold">
+                    {result}
+                </div>
+            )}
+        </div>
+    )
 }
