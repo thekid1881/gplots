@@ -1,11 +1,18 @@
 import QuizForm from "@/components/QuizForm";
 import Scoreboard from "@/components/Scoreboard";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Scrubs() {
   return (
       <main className="flex flex-col items-center justify-items-center font-sans">
-        <div className="justify-items-center">
+        <div className="justify-items-center mt-20">
+          <Link
+            href="/user"
+            className="border-solid border-2 border-gray-600 rounded-md p-4 m-12 justify-end"
+          >
+            User Page
+          </Link>
           <div>
             <h1 className="text-center mt-12 text-3xl font-bold">
               Scrubs Quiz
