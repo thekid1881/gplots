@@ -15,7 +15,7 @@ export default function QuizForm() {
     useEffect(() => {
         const fetchQuestions = async () => {
             const { data, error } = await supabase
-                .from('quizdata')
+                .from('housedata')
                 .select('*')
                 .order('id', { ascending: true })
             

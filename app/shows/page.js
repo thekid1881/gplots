@@ -18,6 +18,7 @@ export default function Shows() {
                 href="/scrubs"
             >
                 <Image
+                    className="w-36 h-28 m-4 border-solid border-2 border-gray-600 rounded-md"
                     src="/scrubs.png"
                     width={200}
                     height={200}
@@ -28,6 +29,7 @@ export default function Shows() {
                 href="/house"
             >
                 <Image
+                    className="w-36 h-28 m-4 border-solid border-2 border-gray-600 rounded-md"
                     src="/house.png"
                     width={200}
                     height={200}

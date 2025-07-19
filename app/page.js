@@ -6,6 +6,14 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen gap-16  font-sans">
       <main className="flex flex-col gap-[32px] row-start-2 items-center">
         <div>
+          <div className="bg-fixed justify-self-center">
+            <Image
+              src="/geekgriller.png"
+              width={200}
+              height={350}
+              alt="griller"
+            />
+          </div>
           <Link
             href="/"
             className="text-8xl text-gray-900 font-extrabold"
